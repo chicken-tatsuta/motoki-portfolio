@@ -4,123 +4,161 @@ import { filters, projects } from "./data";
 import "./styles.css";
 
 const Arrow = () => <span aria-hidden="true">↗</span>;
+const filterLabels = { All: "すべて", Team: "Hanabi", Creative: "Creative", Engineering: "Engineering" };
+
+function useReveal(routeKey) {
+  useEffect(() => {
+    const nodes = document.querySelectorAll("[data-reveal]");
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible")),
+      { threshold: 0.12 }
+    );
+    nodes.forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, [routeKey]);
+}
 
 function Header({ onHome }) {
-  const [open, setOpen] = useState(false);
-  const go = (hash) => { onHome(); setOpen(false); setTimeout(() => document.querySelector(hash)?.scrollIntoView(), 0); };
-  useEffect(() => {
-    const closeOnEscape = (event) => event.key === "Escape" && setOpen(false);
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, []);
-  return <header className="header">
-    <button className="wordmark" onClick={() => go("#top")}>MOTOKI<br/>TATSUTA</button>
-    <p className="header-status"><span /> Available for new ideas</p>
-    <button className="menu-button" aria-expanded={open} aria-controls="nav" onClick={() => setOpen(!open)}>{open ? "CLOSE" : "MENU"}</button>
-    <nav id="nav" className={open ? "nav is-open" : "nav"} aria-label="メインナビゲーション">
-      <button onClick={() => go("#about")}>About</button><button onClick={() => go("#works")}>Works</button><button onClick={() => go("#contact")}>Contact</button>
+  const navigate = (hash) => {
+    onHome();
+    window.setTimeout(() => document.querySelector(hash)?.scrollIntoView({ behavior: "smooth" }), 0);
+  };
+  return <header className="site-header">
+    <button className="site-logo" onClick={() => navigate("#top")}>Motoki Tatsuta</button>
+    <nav className="site-nav" aria-label="メインナビゲーション">
+      <button onClick={() => navigate("#about")}>自己紹介</button>
+      <button onClick={() => navigate("#works")}>制作物</button>
+      <button onClick={() => navigate("#contact")}>連絡先</button>
     </nav>
   </header>;
 }
 
+function ProjectCard({ project, featured, openProject }) {
+  return <button className={featured ? "work-card featured" : "work-card"} onClick={() => openProject(project.id)} data-reveal>
+    <div className="work-card-copy">
+      <p className="work-card-meta"><span>{project.index}</span>{project.group} / {project.period}</p>
+      <h3>{project.title}</h3>
+      <p>{project.summary}</p>
+      <div className="work-tags">{project.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
+      <span className="work-link">詳細を見る <Arrow /></span>
+    </div>
+    <div className={`work-card-visual visual-${project.id}`}>
+      {project.image
+        ? <img src={project.image} alt={project.imageAlt || ""} />
+        : <strong aria-hidden="true">{project.id === "cat" ? "404\nCAT" : "WEB\n/ AI"}</strong>}
+    </div>
+  </button>;
+}
+
 function Home({ openProject, openDisclosure }) {
   const [filter, setFilter] = useState("All");
-  const [contact, setContact] = useState({ name: "", reply: "", message: "" });
-  const visible = useMemo(() => projects.filter(p => filter === "All" || p.group === filter), [filter]);
-  const sendInquiry = (event) => {
-    event.preventDefault();
-    const subject = encodeURIComponent(`Portfolio Inquiry — ${contact.name || "No name"}`);
-    const body = encodeURIComponent(`お名前: ${contact.name}\n返信先: ${contact.reply}\n\n${contact.message}`);
-    window.location.href = `mailto:kmc2423@kamiyama.ac.jp?subject=${subject}&body=${body}`;
-  };
+  const visible = useMemo(() => projects.filter((project) => filter === "All" || project.group === filter), [filter]);
+  useReveal(filter);
+
   return <main id="top">
-    <section className="hero shell">
-      <div className="hero-meta"><p className="kicker">PORTFOLIO / 2026</p><p>BASED IN KAMIYAMA, JAPAN</p></div>
-      <h1><span>Ideas into</span><br/><em>motion.</em></h1>
-      <div className="hero-bottom">
-        <p>企画、デザイン、技術を横断して、<br/>人とアイデアが動き出す仕組みをつくる。</p>
-        <a className="round-link" href="#works" aria-label="制作物へ移動">↓</a>
+    <section className="hero section">
+      <div className="hero-copy" data-reveal>
+        <p className="eyebrow">PORTFOLIO / 2026</p>
+        <h1>Motoki Tatsuta</h1>
+        <p className="hero-subtitle">アイデアを、人が動くところまで。</p>
+        <p className="hero-description">ロボティクス、ゲーム制作、Webプログラミングを横断して、<br />まだ形のない考えを、行動や体験へつなげます。</p>
+        <div className="button-row">
+          <a className="button primary" href="#works">制作物を見る</a>
+          <a className="button secondary" href="#contact">連絡する</a>
+        </div>
       </div>
-      <div className="orbit orbit-one"/><div className="orbit orbit-two"/><div className="hero-dot"/>
+      <div className="hero-visual" data-reveal>
+        <div className="motion-ring" aria-hidden="true" />
+        <img src="./assets/profile-hero.jpg" alt="神山町の屋外に立つMotoki Tatsuta" />
+        <p><span>IDEAS</span><span>INTO MOTION</span></p>
+      </div>
     </section>
 
-    <div className="ticker" aria-hidden="true"><div><span>IDEAS</span><i>→</i><span>TEAMS</span><i>→</i><span>GAMES</span><i>→</i><span>INTERFACES</span><i>→</i><span>IDEAS</span><i>→</i><span>TEAMS</span><i>→</i></div></div>
+    <section id="about" className="section two-column section-space" data-reveal>
+      <div>
+        <p className="section-label">自己紹介 / ABOUT</p>
+        <h2>領域を越えて、<br />人が動く理由をつくる。</h2>
+      </div>
+      <div className="section-body">
+        <p className="about-lead">Motoki Tatsuta。ロボティクス、ゲーム、Webを行き来しながら、まだ名前のないアイデアを形にしています。</p>
+        <p>国際ロボコンでは営業やイベント、チーム運営を担当し、自主制作ではゲームのルールから世界観まで設計してきました。完成物だけでなく、相手や状況を理解し、次の行動が生まれるところまでつなげることを大切にしています。</p>
+        <div className="tag-list"><span>デザイン</span><span>エンジニアリング</span><span>プロジェクトマネジメント</span><span>ストーリーテリング</span></div>
+      </div>
+    </section>
 
-    <section id="about" className="about shell section-pad">
-      <p className="section-no">01 — ABOUT</p>
-      <div className="about-grid">
-        <h2>世界をつくる前に、<br/>人が動く理由をつくる。</h2>
-        <figure className="about-portrait"><img src="./assets/profile-hero.jpg" alt="神山町の屋外に立つMotoki Tatsuta"/><figcaption><span>Motoki Tatsuta</span><span>Student / Creator</span></figcaption></figure>
-        <div className="about-copy">
-          <p className="lead">Motoki Tatsuta。ロボティクス、ゲーム、Webを行き来しながら、まだ名前のないアイデアを形にしています。</p>
-          <p>強みは、つくる対象を限定しないことです。国際ロボコンでは営業やイベント、チーム運営を担い、自主制作ではゲームのルールからカードの世界観まで設計してきました。思いつきを作品で終わらせず、誰かに届き、次の行動が生まれるところまでつなげます。</p>
-          <div className="skills"><span>Design</span><span>Engineering</span><span>Project Management</span><span>Storytelling</span></div>
+    <section id="works" className="works section-space">
+      <div className="section section-heading" data-reveal>
+        <div><p className="section-label">制作物 / SELECTED WORKS</p><h2>考えた過程まで、<br />見える仕事。</h2></div>
+        <p>背景、役割、プロセス、成果、学びを<br />ケーススタディとして紹介します。</p>
+      </div>
+      <div className="section work-tabs" role="group" aria-label="制作物をカテゴリで絞り込む">
+        {filters.map((item) => <button key={item} className={filter === item ? "active" : ""} aria-pressed={filter === item} onClick={() => setFilter(item)}>{filterLabels[item]}</button>)}
+      </div>
+      <div className="section works-grid">
+        {visible.map((project, index) => <ProjectCard key={project.id} project={project} featured={index === 0} openProject={openProject} />)}
+      </div>
+    </section>
+
+    <section id="contact" className="section contact-section section-space" data-reveal>
+      <div><p className="section-label">連絡先 / CONTACT</p><h2>次の面白いことを、<br />一緒につくりませんか。</h2></div>
+      <div className="contact-copy">
+        <p>インターン、面談、プロジェクトの相談など、気軽にご連絡ください。</p>
+        <div className="contact-links">
+          <a href="mailto:kmc2423@kamiyama.ac.jp?subject=Portfolio%20Website%20Inquiry"><span>メール</span><Arrow /></a>
+          <a href="https://github.com/chicken-tatsuta" target="_blank" rel="noreferrer"><span>GitHub</span><Arrow /></a>
+          <a href="https://x.com/chicken_tatsut" target="_blank" rel="noreferrer"><span>SNS</span><Arrow /></a>
         </div>
       </div>
     </section>
 
-    <section id="works" className="works section-pad">
-      <div className="shell section-head"><p className="section-no">02 — SELECTED WORKS</p><h2>考えた跡まで、<br/>見える仕事。</h2></div>
-      <div className="shell filters" role="group" aria-label="制作物をカテゴリで絞り込む">
-        {filters.map(f => <button key={f} className={filter === f ? "active" : ""} aria-pressed={filter === f} onClick={() => setFilter(f)}>{f}<span>{String(projects.filter(p => f === "All" || p.group === f).length).padStart(2, "0")}</span></button>)}
-      </div>
-      <div className="project-list">
-        {visible.map(project => <button className={`project-row ${project.accent}`} key={project.id} onClick={() => openProject(project.id)}>
-          <span className="project-index">{project.index}</span>
-          <span className="project-copy"><small>{project.group} / {project.period}</small><strong>{project.title}</strong><span>{project.summary}</span><span className="tag-line">{project.tags.join(" · ")}</span></span>
-          {project.image ? <img src={project.image} alt={project.imageAlt || ""}/> : <span className="project-mark" aria-hidden="true">{project.id === "cat" ? "404" : "〈/〉"}</span>}
-          <span className="project-arrow" aria-hidden="true">↗</span>
-          <span className="view-case">VIEW CASE</span>
-        </button>)}
-      </div>
-    </section>
-
-    <section id="contact" className="contact shell section-pad">
-      <p className="section-no">03 — CONTACT</p>
-      <div className="contact-grid"><div><h2>次の面白いことを、<br/><em>一緒に。</em></h2><p className="contact-lead">インターン、面談、プロジェクトの相談など、気軽に声をかけてください。</p><div className="socials"><a href="https://github.com/chicken-tatsuta" target="_blank" rel="noreferrer">GitHub <Arrow/></a><a href="https://x.com/chicken_tatsut" target="_blank" rel="noreferrer">X <Arrow/></a></div></div><form className="contact-form" onSubmit={sendInquiry}><label><span>NAME</span><input required value={contact.name} onChange={e => setContact({...contact, name:e.target.value})} placeholder="お名前"/></label><label><span>REPLY TO</span><input required type="email" value={contact.reply} onChange={e => setContact({...contact, reply:e.target.value})} placeholder="you@example.com"/></label><label><span>MESSAGE</span><textarea required rows="3" value={contact.message} onChange={e => setContact({...contact, message:e.target.value})} placeholder="相談したいこと"/></label><button type="submit">メールを作成する <Arrow/></button></form></div>
-    </section>
-    <footer className="footer shell"><span>© 2026 MOTOKI TATSUTA</span><button onClick={openDisclosure}>AI利用について</button><a href="#top">BACK TO TOP ↑</a></footer>
+    <footer className="site-footer section"><span>© 2026 Motoki Tatsuta</span><button onClick={openDisclosure}>AI利用について</button><a href="#top">ページ上部へ ↑</a></footer>
   </main>;
 }
 
 function Detail({ project, close }) {
+  useReveal(project.id);
   useEffect(() => { window.scrollTo(0, 0); }, [project.id]);
-  return <main className={`detail ${project.accent}`}>
-    <div className="detail-accent" aria-hidden="true"/><div className="shell detail-top"><button className="back" onClick={close}>← WORKS</button><p>{project.index} / {project.group}</p></div>
-    <section className="shell detail-hero"><div><p className="kicker">{project.period}</p><h1>{project.title}</h1><p>{project.subtitle}</p></div>{project.image ? <img src={project.image} alt={project.imageAlt}/> : <div className="detail-symbol">{project.id === "cat" ? "404\nCAT\nFOUND" : "〈/〉"}</div>}</section>
-    <section className="facts shell">{project.facts.map(([value,label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</section>
-    <section className="case shell">
-      <aside><p className="section-no">CASE STUDY</p><dl><dt>ROLE</dt><dd>{project.role}</dd><dt>TOOLS</dt><dd>Notion / Figma / Adobe / Web</dd></dl></aside>
+  const nextIndex = (projects.findIndex((item) => item.id === project.id) + 1) % projects.length;
+
+  return <main className="project-page">
+    <div className="section detail-top"><button onClick={close}>← 制作物一覧へ</button><span>{project.index} / {project.group}</span></div>
+    <header className="section project-header" data-reveal>
+      <div><p className="section-label">CASE STUDY / {project.period}</p><h1>{project.title}</h1><p className="project-lead">{project.subtitle}</p></div>
+      <dl><dt>担当</dt><dd>{project.role}</dd><dt>期間</dt><dd>{project.period}</dd><dt>種別</dt><dd>{project.group === "Team" ? "チームプロジェクト" : "自主制作"}</dd></dl>
+    </header>
+    <div className={`section project-key-visual visual-${project.id}`} data-reveal>
+      {project.image ? <img src={project.image} alt={project.imageAlt} /> : <strong>{project.id === "cat" ? "404 CAT FOUND" : "WEB / AI TOOLS"}</strong>}
+      <span>IDEAS INTO MOTION / {project.index}</span>
+    </div>
+    <section className="section project-metrics" data-reveal>{project.facts.map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</section>
+    <div className="section case-layout">
+      <aside><p className="section-label">CONTENTS</p><a href="#background">01 背景</a><a href="#challenge">02 課題と狙い</a><a href="#process">03 プロセス</a><a href="#result">04 成果</a><a href="#learning">05 学び</a></aside>
       <article>
-        <div className="chapter"><span>01</span><h2>背景</h2><p>{project.background}</p></div>
-        <div className="chapter"><span>02</span><h2>課題と狙い</h2><p>{project.challenge}</p></div>
-        <div className="chapter"><span>03</span><h2>プロセス</h2><ol>{project.process.map((p,i) => <li key={p}><b>0{i+1}</b><p>{p}</p></li>)}</ol></div>
-        {project.gallery && <div className="gallery">{project.gallery.map((src,i) => <img key={src} src={src} alt={`ZERONIKA カードデザイン ${i+2}`}/>)}</div>}
-        <div className="chapter result"><span>04</span><h2>成果</h2><p>{project.result}</p></div>
-        <div className="chapter learning"><span>05</span><h2>学び</h2><blockquote>“{project.learning}”</blockquote></div>
+        <section id="background" className="story-section" data-reveal><span>01</span><div><h2>背景</h2><p>{project.background}</p></div></section>
+        <section id="challenge" className="story-section orange-band" data-reveal><span>02</span><div><h2>課題と狙い</h2><p>{project.challenge}</p></div></section>
+        <section id="process" className="story-section" data-reveal><span>03</span><div><h2>プロセス</h2><ol>{project.process.map((item, index) => <li key={item}><b>{String(index + 1).padStart(2, "0")}</b><p>{item}</p></li>)}</ol></div></section>
+        {project.gallery && <div className="project-gallery" data-reveal>{project.gallery.map((src, index) => <img key={src} src={src} alt={`${project.title}の制作画像 ${index + 2}`} />)}</div>}
+        <section id="result" className="story-section result-band" data-reveal><span>04</span><div><h2>成果</h2><p>{project.result}</p></div></section>
+        <section id="learning" className="story-section learning" data-reveal><span>05</span><div><h2>学び</h2><blockquote>「{project.learning}」</blockquote></div></section>
       </article>
-    </section>
-    <section className="next shell"><p>NEXT PROJECT</p><button onClick={() => { const i = projects.findIndex(p => p.id === project.id); location.hash = `work/${projects[(i+1)%projects.length].id}`; }}>{projects[(projects.findIndex(p => p.id === project.id)+1)%projects.length].title} <Arrow/></button></section>
+    </div>
+    <section className="section next-project"><p>次のプロジェクト</p><button onClick={() => { window.location.hash = `work/${projects[nextIndex].id}`; }}>{projects[nextIndex].title} <Arrow /></button></section>
   </main>;
 }
 
 function Disclosure({ close }) {
-  useEffect(() => {
-    const closeOnEscape = (event) => event.key === "Escape" && close();
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [close]);
-  return <div className="modal-backdrop" role="presentation" onMouseDown={e => e.target === e.currentTarget && close()}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="ai-title"><button className="modal-close" onClick={close} aria-label="閉じる">×</button><p className="section-no">AI DISCLOSURE</p><h2 id="ai-title">AI利用について</h2><p>このポートフォリオでは、構成整理、Reactコードの雛形・主要ロジック、文章初稿、デザイン実装に OpenAI Codex（GPT-5）を利用し、制作者本人が内容・表現・動作を確認して修正しました。</p><dl><dt>使用日</dt><dd>2026年7月20日・8月7日</dd><dt>使用範囲</dt><dd>情報設計、文章初稿、React / CSS実装、テスト補助</dd><dt>プロンプト概要</dt><dd>提出済みコンセプトを維持し、内容設計・UX・レスポンシブを改善してReactで再構築する。</dd><dt>最終責任</dt><dd>出力をそのまま提出せず、制作者本人が検証・修正し、公開内容に責任を持ちます。</dd></dl><button className="button-dark" onClick={close}>確認して閉じる</button></section></div>;
+  return <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && close()}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="ai-title"><button className="modal-close" onClick={close} aria-label="閉じる">×</button><p className="section-label">AI DISCLOSURE</p><h2 id="ai-title">AI利用について</h2><p>構成整理、Reactコードの雛形・主要ロジック、文章初稿、デザイン実装にOpenAI Codex（GPT-5）を利用し、制作者本人が内容・表現・動作を確認して修正しました。</p><dl><dt>使用日</dt><dd>2026年7月20日・8月7日</dd><dt>使用範囲</dt><dd>情報設計、文章初稿、React / CSS実装、テスト補助</dd><dt>最終責任</dt><dd>制作者本人が検証・修正し、公開内容に責任を持ちます。</dd></dl><button className="modal-action" onClick={close}>確認して閉じる</button></section></div>;
 }
 
 function App() {
-  const route = () => decodeURIComponent(location.hash.replace(/^#/, ""));
-  const [hash, setHash] = useState(route()); const [disclosure, setDisclosure] = useState(false);
-  useEffect(() => { const fn=()=>setHash(route()); addEventListener("hashchange", fn); return()=>removeEventListener("hashchange", fn); }, []);
+  const readRoute = () => decodeURIComponent(window.location.hash.replace(/^#/, ""));
+  const [route, setRoute] = useState(readRoute());
+  const [disclosure, setDisclosure] = useState(false);
+  useEffect(() => { const update = () => setRoute(readRoute()); window.addEventListener("hashchange", update); return () => window.removeEventListener("hashchange", update); }, []);
   useEffect(() => { document.body.style.overflow = disclosure ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [disclosure]);
-  const id = hash.startsWith("work/") ? hash.split("/")[1] : null; const project = projects.find(p => p.id === id);
-  const home = () => { location.hash = ""; setHash(""); };
-  return <><Header onHome={home}/>{project ? <Detail project={project} close={() => { location.hash = "works"; setTimeout(() => document.querySelector("#works")?.scrollIntoView(), 0); }}/> : <Home openProject={id => location.hash=`work/${id}`} openDisclosure={() => setDisclosure(true)}/>} {disclosure && <Disclosure close={() => setDisclosure(false)}/>}</>;
+  const project = route.startsWith("work/") ? projects.find((item) => item.id === route.split("/")[1]) : null;
+  const home = () => { window.location.hash = ""; setRoute(""); };
+  return <><Header onHome={home} />{project ? <Detail project={project} close={() => { window.location.hash = "works"; window.setTimeout(() => document.querySelector("#works")?.scrollIntoView(), 0); }} /> : <Home openProject={(id) => { window.location.hash = `work/${id}`; }} openDisclosure={() => setDisclosure(true)} />}{disclosure && <Disclosure close={() => setDisclosure(false)} />}</>;
 }
 
-createRoot(document.getElementById("root")).render(<React.StrictMode><App/></React.StrictMode>);
+createRoot(document.getElementById("root")).render(<App />);
