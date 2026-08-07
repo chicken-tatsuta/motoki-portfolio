@@ -33,6 +33,20 @@ function useReveal(routeKey) {
 }
 
 function Header({ onHome }) {
+  const [scrollProgress, setScrollProgress] = useState(0);
+  useEffect(() => {
+    const updateProgress = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(scrollable > 0 ? Math.min(window.scrollY / scrollable, 1) : 0);
+    };
+    updateProgress();
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    window.addEventListener("resize", updateProgress);
+    return () => {
+      window.removeEventListener("scroll", updateProgress);
+      window.removeEventListener("resize", updateProgress);
+    };
+  }, []);
   const navigate = (hash) => {
     onHome();
     window.setTimeout(() => document.querySelector(hash)?.scrollIntoView({ behavior: "smooth" }), 0);
@@ -44,11 +58,12 @@ function Header({ onHome }) {
       <button onClick={() => navigate("#works")}>制作物</button>
       <button onClick={() => navigate("#contact")}>連絡先</button>
     </nav>
+    <span className="scroll-progress" style={{ transform: `scaleX(${scrollProgress})` }} aria-hidden="true" />
   </header>;
 }
 
-function ProjectCard({ project, featured, openProject }) {
-  return <button className={featured ? "work-card featured" : "work-card"} onClick={() => openProject(project.id)} data-reveal>
+function ProjectCard({ project, featured, revealIndex, openProject }) {
+  return <button className={featured ? "work-card featured" : "work-card"} style={{ "--reveal-delay": `${Math.min(revealIndex, 3) * 90}ms` }} onClick={() => openProject(project.id)} data-reveal>
     <div className="work-card-copy">
       <p className="work-card-meta"><span>{project.index}</span>{project.group} / {project.period}</p>
       <h3>{project.title}</h3>
@@ -81,7 +96,7 @@ function Home({ openProject, openDisclosure }) {
     <section className="hero section">
       <div className="hero-copy" data-reveal>
         <p className="eyebrow">PORTFOLIO / 2026</p>
-        <h1>Motoki Tatsuta</h1>
+        <h1><span>Motoki</span><span>Tatsuta</span></h1>
         <p className="hero-subtitle">アイデアを、人が動くところまで。</p>
         <p className="hero-description">ロボティクス、ゲーム制作、Webプログラミングを横断して、<br />まだ形のない考えを、行動や体験へつなげます。</p>
         <div className="button-row">
@@ -124,9 +139,9 @@ function Home({ openProject, openDisclosure }) {
       <div className="section work-tabs" role="group" aria-label="制作物をカテゴリで絞り込む">
         {filters.map((item) => <button key={item} className={filter === item ? "active" : ""} aria-pressed={filter === item} onClick={() => setFilter(item)}>{filterLabels[item]} <span>{projects.filter((project) => item === "All" || project.group === item).length}</span></button>)}
       </div>
-      <div className="section filter-summary" aria-live="polite"><strong>{filterLabels[filter]}</strong><span>{String(visible.length).padStart(2, "0")} PROJECTS</span><p>{filterDescriptions[filter]}</p></div>
+      <div key={filter} className="section filter-summary" aria-live="polite"><strong>{filterLabels[filter]}</strong><span>{String(visible.length).padStart(2, "0")} PROJECTS</span><p>{filterDescriptions[filter]}</p></div>
       <div className="section works-grid">
-        {visible.map((project, index) => <ProjectCard key={project.id} project={project} featured={index === 0} openProject={openProject} />)}
+        {visible.map((project, index) => <ProjectCard key={project.id} project={project} featured={index === 0} revealIndex={index} openProject={openProject} />)}
       </div>
     </section>
 
