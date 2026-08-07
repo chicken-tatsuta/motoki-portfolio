@@ -131,7 +131,9 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(242, 140, 40, .3
 .work-card-visual img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease, filter .4s ease; }
 .work-card:hover img { transform: scale(1.025); }
 .work-card-visual strong { display: grid; place-items: center; height: 100%; min-height: 250px; padding: 30px; white-space: pre-line; font-size: clamp(2.5rem, 6vw, 5.5rem); font-weight: 600; line-height: .9; text-align: center; }
-.visual-cat { background: var(--orange); }
+.visual-cat { background: #fbfaff; }
+.work-card-visual.visual-cat, .project-key-visual.visual-cat { background: #fbfaff; }
+.work-card-visual.visual-cat img, .project-key-visual.visual-cat img { object-fit: contain; }
 .visual-web-ai { background: var(--soft); }
 
 .contact-section { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: clamp(48px, 9vw, 120px); border-top: 1px solid var(--ink); }

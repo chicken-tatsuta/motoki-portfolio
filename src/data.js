@@ -61,6 +61,8 @@ export const projects = [
     period: "2024.04 — Now",
     role: "イラスト / ブランド構想 / グッズ企画",
     tools: ["Figma", "Adobe Illustrator"],
+    image: "./assets/cat-found-thumbnail.png",
+    imageAlt: "手描きの猫とCAT FOUNDロゴを組み合わせたイラスト",
     accent: "orange",
     facts: [["30+", "完成イラスト"], ["80+", "ラフ・デザイン案"], ["∞", "これから描く猫"]],
     background: "息抜きで描いていた猫が、周囲の『かわいい』という反応をきっかけに、継続的な自主プロジェクトへ変わりました。",
