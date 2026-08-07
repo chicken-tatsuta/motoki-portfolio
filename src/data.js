@@ -72,25 +72,6 @@ export const projects = [
     learning: "小さな好奇心も、継続と他者の反応によってプロジェクトへ育つ。これからも描き続けます。",
     tags: ["Illustration", "Branding", "Product Idea"],
   },
-  {
-    id: "web-ai",
-    index: "04",
-    group: "Engineering",
-    title: "Web / AI Tools",
-    subtitle: "面倒を見つけたら、まず小さく動くものをつくる。",
-    summary: "Web技術とAIを使い、身近な作業を軽くするツールを短いサイクルで試作しています。",
-    period: "2025 — Now",
-    role: "課題発見 / UI設計 / フロントエンド実装",
-    tools: ["React", "Vite", "GitHub Actions"],
-    accent: "black",
-    facts: [["React", "今回の実装"], ["Mobile", "レスポンシブ"], ["A11y", "操作・可読性"]],
-    background: "毎日の中にある小さな面倒は、技術を学ぶ最高の入口です。完成を待つより、まず使える形にして試すことを大切にしています。",
-    challenge: "機能を増やすことではなく、誰が・どの場面で困っているかを定め、最短の操作で目的に届くUIへ落とし込むことを意識しています。",
-    process: ["自分や周囲の困りごとを観察。", "必要な体験を一文で定義し、画面を紙に描く。", "最小機能を実装し、実際の端末で触る。", "迷いやエラーを記録し、次の改善を決める。"],
-    result: "企画から実装、公開までを一続きで扱えるようになりました。このポートフォリオも、情報設計と実装を結びつける実践として制作しています。",
-    learning: "AIは答えそのものではなく、考えを試す速度を上げる道具。最終判断と検証は自分で担います。",
-    tags: ["React", "UI Design", "AI Literacy"],
-  },
 ];
 
-export const filters = ["All", "Team", "Creative", "Engineering"];
+export const filters = ["All", "Team", "Creative"];

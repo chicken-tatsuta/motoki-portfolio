@@ -4,12 +4,11 @@ import { filters, projects } from "./data";
 import "./styles.css";
 
 const Arrow = () => <span aria-hidden="true">↗</span>;
-const filterLabels = { All: "すべて", Team: "Hanabi", Creative: "Creative", Engineering: "Engineering" };
+const filterLabels = { All: "すべて", Team: "Hanabi", Creative: "Creative" };
 const filterDescriptions = {
-  All: "チームでの実践から自主制作まで、領域を横断した4件のケーススタディです。",
+  All: "チームでの実践から自主制作まで、領域を横断した3件のケーススタディです。",
   Team: "国際ロボコンHanabiで、渉外・イベント・チーム運営を横断した取り組みです。",
   Creative: "ゲームとイラストを通して、自分の世界を遊べる形へ変えた自主制作です。",
-  Engineering: "身近な課題を見つけ、WebとAIで小さく素早く形にした取り組みです。",
 };
 
 function useReveal(routeKey) {

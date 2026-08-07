@@ -158,8 +158,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(242, 140, 40, .3
 .visual-cat { background: #fbfaff; }
 .work-card-visual.visual-cat, .project-key-visual.visual-cat { background: #fbfaff; }
 .work-card-visual.visual-cat img, .project-key-visual.visual-cat img { object-fit: contain; }
-.visual-web-ai { background: var(--soft); }
-
 .contact-section { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: clamp(48px, 9vw, 120px); border-top: 1px solid var(--ink); }
 .contact-copy > p { margin: 0 0 32px; color: var(--muted); }
 .contact-form { display: grid; border-top: 1px solid var(--ink); }
