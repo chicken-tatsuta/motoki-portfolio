@@ -92,7 +92,6 @@ function Home({ openProject, openDisclosure }) {
       <div className="hero-visual" data-reveal>
         <div className="motion-ring" aria-hidden="true" />
         <img src="./assets/profile-hero.jpg" alt="神山町の屋外に立つMotoki Tatsuta" />
-        <p><span>IDEAS</span><span>INTO MOTION</span></p>
       </div>
     </section>
 

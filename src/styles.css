@@ -76,7 +76,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(242, 140, 40, .3
 
 .hero-visual { position: relative; align-self: stretch; min-height: 520px; display: flex; align-items: center; justify-content: flex-end; overflow: hidden; border-radius: 8px; }
 .hero-visual img { position: relative; z-index: 2; width: min(100%, 440px); height: min(68vh, 650px); min-height: 480px; object-fit: cover; border-radius: 8px; box-shadow: 0 24px 60px rgba(0,0,0,.09); }
-.hero-visual > p { position: absolute; z-index: 3; right: -22px; bottom: 8%; display: grid; gap: 2px; margin: 0; padding: 13px 16px; border: 1px solid var(--ink); background: var(--white); font-size: .62rem; font-weight: 600; letter-spacing: .12em; }
 .motion-ring { position: absolute; z-index: 1; top: 10%; right: -7%; width: 78%; aspect-ratio: 1; border: 2px solid var(--orange); border-radius: 50%; transform: rotate(-18deg) scaleY(.56); animation: ring-turn 18s linear infinite; }
 
 .two-column { display: grid; grid-template-columns: minmax(270px, .85fr) minmax(0, 1.15fr); gap: clamp(48px, 9vw, 130px); border-top: 1px solid var(--ink); }
@@ -239,7 +238,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(242, 140, 40, .3
   .hero-description br { display: none; }
   .hero-visual { min-height: 400px; }
   .hero-visual img { height: 400px; }
-  .hero-visual > p { right: 8px; bottom: -18px; }
   .button-row { display: grid; grid-template-columns: 1fr 1fr; }
   .button { min-width: 0; padding-inline: 10px; }
   .strength-grid { grid-template-columns: 1fr; }
