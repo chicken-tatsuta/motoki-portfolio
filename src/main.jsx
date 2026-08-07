@@ -5,15 +5,29 @@ import "./styles.css";
 
 const Arrow = () => <span aria-hidden="true">↗</span>;
 const filterLabels = { All: "すべて", Team: "Hanabi", Creative: "Creative", Engineering: "Engineering" };
+const filterDescriptions = {
+  All: "チームでの実践から自主制作まで、領域を横断した4件のケーススタディです。",
+  Team: "国際ロボコンHanabiで、渉外・イベント・チーム運営を横断した取り組みです。",
+  Creative: "ゲームとイラストを通して、自分の世界を遊べる形へ変えた自主制作です。",
+  Engineering: "身近な課題を見つけ、WebとAIで小さく素早く形にした取り組みです。",
+};
 
 function useReveal(routeKey) {
   useEffect(() => {
     const nodes = document.querySelectorAll("[data-reveal]");
+    if (!("IntersectionObserver" in window)) {
+      nodes.forEach((node) => node.classList.add("is-visible"));
+      return undefined;
+    }
     const observer = new IntersectionObserver(
       (entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible")),
       { threshold: 0.12 }
     );
-    nodes.forEach((node) => observer.observe(node));
+    nodes.forEach((node) => {
+      const rect = node.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) node.classList.add("is-visible");
+      observer.observe(node);
+    });
     return () => observer.disconnect();
   }, [routeKey]);
 }
@@ -52,8 +66,16 @@ function ProjectCard({ project, featured, openProject }) {
 
 function Home({ openProject, openDisclosure }) {
   const [filter, setFilter] = useState("All");
+  const [contact, setContact] = useState({ name: "", reply: "", message: "" });
   const visible = useMemo(() => projects.filter((project) => filter === "All" || project.group === filter), [filter]);
   useReveal(filter);
+
+  const createEmail = (event) => {
+    event.preventDefault();
+    const subject = encodeURIComponent(`Portfolio Inquiry — ${contact.name}`);
+    const body = encodeURIComponent(`お名前: ${contact.name}\n返信先: ${contact.reply}\n\n${contact.message}`);
+    window.location.href = `mailto:kmc2423@kamiyama.ac.jp?subject=${subject}&body=${body}`;
+  };
 
   return <main id="top">
     <section className="hero section">
@@ -86,14 +108,24 @@ function Home({ openProject, openDisclosure }) {
       </div>
     </section>
 
+    <section className="section strengths" aria-labelledby="strength-title" data-reveal>
+      <div className="strength-heading"><p className="section-label">強み / STRENGTHS</p><h2 id="strength-title">考える、伝える、動かす。</h2></div>
+      <div className="strength-grid">
+        <article><span>01</span><strong>相手を理解する</strong><p>150件以上の提案と対話を重ね、相手に合わせて価値を言語化。</p></article>
+        <article><span>02</span><strong>仕組みに変える</strong><p>83回のイベントを設計し、累計15,000人以上へ体験を届ける。</p></article>
+        <article><span>03</span><strong>試して磨く</strong><p>100枚以上のカードを制作し、試遊と観察からルールを改善。</p></article>
+      </div>
+    </section>
+
     <section id="works" className="works section-space">
       <div className="section section-heading" data-reveal>
         <div><p className="section-label">制作物 / SELECTED WORKS</p><h2>考えた過程まで、<br />見える仕事。</h2></div>
         <p>背景、役割、プロセス、成果、学びを<br />ケーススタディとして紹介します。</p>
       </div>
       <div className="section work-tabs" role="group" aria-label="制作物をカテゴリで絞り込む">
-        {filters.map((item) => <button key={item} className={filter === item ? "active" : ""} aria-pressed={filter === item} onClick={() => setFilter(item)}>{filterLabels[item]}</button>)}
+        {filters.map((item) => <button key={item} className={filter === item ? "active" : ""} aria-pressed={filter === item} onClick={() => setFilter(item)}>{filterLabels[item]} <span>{projects.filter((project) => item === "All" || project.group === item).length}</span></button>)}
       </div>
+      <div className="section filter-summary" aria-live="polite"><strong>{filterLabels[filter]}</strong><span>{String(visible.length).padStart(2, "0")} PROJECTS</span><p>{filterDescriptions[filter]}</p></div>
       <div className="section works-grid">
         {visible.map((project, index) => <ProjectCard key={project.id} project={project} featured={index === 0} openProject={openProject} />)}
       </div>
@@ -103,11 +135,14 @@ function Home({ openProject, openDisclosure }) {
       <div><p className="section-label">連絡先 / CONTACT</p><h2>次の面白いことを、<br />一緒につくりませんか。</h2></div>
       <div className="contact-copy">
         <p>インターン、面談、プロジェクトの相談など、気軽にご連絡ください。</p>
-        <div className="contact-links">
-          <a href="mailto:kmc2423@kamiyama.ac.jp?subject=Portfolio%20Website%20Inquiry"><span>メール</span><Arrow /></a>
-          <a href="https://github.com/chicken-tatsuta" target="_blank" rel="noreferrer"><span>GitHub</span><Arrow /></a>
-          <a href="https://x.com/chicken_tatsut" target="_blank" rel="noreferrer"><span>SNS</span><Arrow /></a>
-        </div>
+        <form className="contact-form" onSubmit={createEmail}>
+          <label><span>お名前</span><input required autoComplete="name" value={contact.name} onChange={(event) => setContact({ ...contact, name: event.target.value })} placeholder="山田 太郎" /></label>
+          <label><span>返信先メール</span><input required type="email" autoComplete="email" value={contact.reply} onChange={(event) => setContact({ ...contact, reply: event.target.value })} placeholder="you@example.com" /></label>
+          <label><span>相談内容</span><textarea required rows="4" value={contact.message} onChange={(event) => setContact({ ...contact, message: event.target.value })} placeholder="相談したい内容をご記入ください" /></label>
+          <button type="submit">メールを作成する <Arrow /></button>
+          <small>入力内容を本文に入れた状態で、端末のメールアプリを開きます。</small>
+        </form>
+        <div className="contact-socials"><a href="https://github.com/chicken-tatsuta" target="_blank" rel="noreferrer">GitHub <Arrow /></a><a href="https://x.com/chicken_tatsut" target="_blank" rel="noreferrer">SNS <Arrow /></a></div>
       </div>
     </section>
 
@@ -124,7 +159,7 @@ function Detail({ project, close }) {
     <div className="section detail-top"><button onClick={close}>← 制作物一覧へ</button><span>{project.index} / {project.group}</span></div>
     <header className="section project-header" data-reveal>
       <div><p className="section-label">CASE STUDY / {project.period}</p><h1>{project.title}</h1><p className="project-lead">{project.subtitle}</p></div>
-      <dl><dt>担当</dt><dd>{project.role}</dd><dt>期間</dt><dd>{project.period}</dd><dt>種別</dt><dd>{project.group === "Team" ? "チームプロジェクト" : "自主制作"}</dd></dl>
+      <dl><dt>担当</dt><dd>{project.role}</dd><dt>期間</dt><dd>{project.period}</dd><dt>種別</dt><dd>{project.group === "Team" ? "チームプロジェクト" : "自主制作"}</dd><dt>ツール</dt><dd>{project.tools.join(" / ")}</dd></dl>
     </header>
     <div className={`section project-key-visual visual-${project.id}`} data-reveal>
       {project.image ? <img src={project.image} alt={project.imageAlt} /> : <strong>{project.id === "cat" ? "404 CAT FOUND" : "WEB / AI TOOLS"}</strong>}
@@ -147,7 +182,7 @@ function Detail({ project, close }) {
 }
 
 function Disclosure({ close }) {
-  return <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && close()}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="ai-title"><button className="modal-close" onClick={close} aria-label="閉じる">×</button><p className="section-label">AI DISCLOSURE</p><h2 id="ai-title">AI利用について</h2><p>構成整理、Reactコードの雛形・主要ロジック、文章初稿、デザイン実装にOpenAI Codex（GPT-5）を利用し、制作者本人が内容・表現・動作を確認して修正しました。</p><dl><dt>使用日</dt><dd>2026年7月20日・8月7日</dd><dt>使用範囲</dt><dd>情報設計、文章初稿、React / CSS実装、テスト補助</dd><dt>最終責任</dt><dd>制作者本人が検証・修正し、公開内容に責任を持ちます。</dd></dl><button className="modal-action" onClick={close}>確認して閉じる</button></section></div>;
+  return <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && close()}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="ai-title"><button className="modal-close" onClick={close} aria-label="閉じる">×</button><p className="section-label">AI DISCLOSURE</p><h2 id="ai-title">AI利用について</h2><p>構成整理、Reactコードの雛形・主要ロジック、文章初稿、デザイン実装にOpenAI Codex（GPT-5）を利用し、制作者本人が内容・表現・動作を確認して修正しました。</p><dl><dt>使用日</dt><dd>2026年7月20日・8月7日</dd><dt>使用範囲</dt><dd>情報設計、文章初稿、React / CSS実装、テスト補助</dd><dt>指示概要</dt><dd>提出済みコンセプトと元サイトの構成・配色・書体を維持し、ルーブリックに沿って内容設計・UX・レスポンシブを改善。</dd><dt>最終責任</dt><dd>制作者本人が検証・修正し、公開内容に責任を持ちます。</dd></dl><button className="modal-action" onClick={close}>確認して閉じる</button></section></div>;
 }
 
 function App() {
